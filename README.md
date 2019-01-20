@@ -1,7 +1,8 @@
+#### The primary use case involves containerized apps using a *fluentd docker log-driver* to push logs to a fluentd container that in turn forwards them to an elasticsearch instance. The secondary use case is visualizing the logs via a Kibana container linked to elasticsearch.
 
 # Docker Logs to Fluentd and Elasticsearch
 
-This use case is about ***fluentd** pumping docker logs from one or more containers on your laptop (localhost) to a local ***docker elasticsearch container***. These logs can then be viewed via a local **Kibana docker** container.
+**fluentd** will pump logs **from docker containers to an ***elasticsearch database***. These logs can then be viewed via a docker **kibana user interface** that reads from the elasticsearch database.
 
 ## Startup ElasticSearch and Kibana
 
@@ -11,9 +12,8 @@ Let's create a baseline by ***removing all docker containers and images*** from 
 docker rm -vf $(docker ps -aq)
 docker rmi $(docker images -aq) --force
 
-docker pull docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0
-
-docker pull docker.elastic.co/kibana/kibana:6.0.0
+############## docker pull docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0
+############## docker pull docker.elastic.co/kibana/kibana:6.0.0
 
 docker run -d --rm -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "transport.host=127.0.0.1" -e ELASTIC_PASSWORD=secret --name elastic-db docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0 && sleep 20
 
@@ -43,7 +43,7 @@ Now that we have data in elasticsearch we can login to Kibana with
 ```bash
 cd /directory/containing/fluentd-config.conf
 
-docker build --rm --tag fluent4me .
+docker build --rm --no-cache --tag fluent4me .
 
 docker run -it            \
     --name fluentd.logs   \
@@ -61,6 +61,7 @@ docker run -it            \
 
 docker run --tty --privileged --detach \
     --log-driver fluentd \
+    --log-opt fluentd-address=192.168.0.23:24224 \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume /usr/bin/docker:/usr/bin/docker \
     --publish 8080:8080       \
@@ -314,3 +315,91 @@ Production Environments
 
 In a more serious environment, you would want to use something other than the Fluentd standard output to store Docker containers messages, such as Elasticsearch, MongoDB, HDFS, S3, Google Cloud Storage and so on. This can be done by installing the necessary Fluentd plugins and configuring fluent.conf appropriately for <match docker.all>...</match> section.
 
+
+
+
+
+
+
+
+
+> > > > > 2019-01-20 20:49:14 +0000 [info]: parsing config file is succeeded path="/fluentd/etc/fluentd-logs.conf"
+2019-01-20 20:49:14 +0000 [info]: Detected ES 6.x: ES 7.x will only accept `_doc` in type_name.
+2019-01-20 20:49:14 +0000 [warn]: To prevent events traffic jam, you should specify 2 or more 'flush_thread_count'.
+2019-01-20 20:49:14 +0000 [info]: using configuration file: <ROOT>
+  <match **>
+    @type elasticsearch
+    logstash_format true
+    host "192.168.0.23"
+    port 9200
+    user "elastic"
+    password xxxxxx
+    index_name "index-jenkins-log"
+    type_name "type-jenkins-log"
+  </match>
+</ROOT>
+2019-01-20 20:49:14 +0000 [info]: starting fluentd-1.3.2 pid=7 ruby="2.5.2"
+2019-01-20 20:49:14 +0000 [info]: spawn command to main:  cmdline=["/usr/bin/ruby", "-Eascii-8bit:ascii-8bit", "/usr/bin/fluentd", "-c", "/fluentd/etc/fluentd-logs.conf", "-p", "/fluentd/plugins", "--under-supervisor"]
+2019-01-20 20:49:15 +0000 [info]: gem 'fluent-plugin-elasticsearch' version '3.0.2'
+2019-01-20 20:49:15 +0000 [info]: gem 'fluentd' version '1.3.2'
+2019-01-20 20:49:15 +0000 [info]: adding match pattern="**" type="elasticsearch"
+2019-01-20 20:49:15 +0000 [info]: #0 Detected ES 6.x: ES 7.x will only accept `_doc` in type_name.
+2019-01-20 20:49:15 +0000 [warn]: #0 To prevent events traffic jam, you should specify 2 or more 'flush_thread_count'.
+2019-01-20 20:49:15 +0000 [info]: #0 starting fluentd worker pid=17 ppid=7 worker=0
+2019-01-20 20:49:15 +0000 [info]: #0 fluentd worker is now running worker=0
+
+
+> > > > > 2019-01-20 20:25:04 +0000 [info]: parsing config file is succeeded path="/fluentd/etc/fluentd-logs.conf"
+2019-01-20 20:25:04 +0000 [warn]: Could not connect Elasticsearch or obtain version. Assuming Elasticsearch 5.
+2019-01-20 20:25:04 +0000 [warn]: To prevent events traffic jam, you should specify 2 or more 'flush_thread_count'.
+2019-01-20 20:25:04 +0000 [info]: using configuration file: <ROOT>
+  <match **>
+    @type elasticsearch
+    logstash_format true
+    host "localhost"
+    port 9200
+    user "elastic"
+    password xxxxxx
+    index_name "index-jenkins-log"
+    type_name "type-jenkins-log"
+  </match>
+</ROOT>
+2019-01-20 20:25:04 +0000 [info]: starting fluentd-1.3.2 pid=8 ruby="2.5.2"
+2019-01-20 20:25:04 +0000 [info]: spawn command to main:  cmdline=["/usr/bin/ruby", "-Eascii-8bit:ascii-8bit", "/usr/bin/fluentd", "-c", "/fluentd/etc/fluentd-logs.conf", "-p", "/fluentd/plugins", "--under-supervisor"]
+2019-01-20 20:25:04 +0000 [info]: gem 'fluent-plugin-elasticsearch' version '3.0.2'
+2019-01-20 20:25:04 +0000 [info]: gem 'fluentd' version '1.3.2'
+2019-01-20 20:25:04 +0000 [info]: adding match pattern="**" type="elasticsearch"
+2019-01-20 20:25:04 +0000 [warn]: #0 Could not connect Elasticsearch or obtain version. Assuming Elasticsearch 5.
+2019-01-20 20:25:04 +0000 [warn]: #0 To prevent events traffic jam, you should specify 2 or more 'flush_thread_count'.
+2019-01-20 20:25:04 +0000 [info]: #0 starting fluentd worker pid=18 ppid=8 worker=0
+2019-01-20 20:25:04 +0000 [info]: #0 fluentd worker is now running worker=0
+2019-01-20 20:26:04 +0000 [warn]: #0 failed to flush the buffer. retry_time=0 next_retry_seconds=2019-01-20 20:26:05 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluent-plugin-elasticsearch-3.0.2/lib/fluent/plugin/out_elasticsearch.rb:655:in `rescue in send_bulk'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluent-plugin-elasticsearch-3.0.2/lib/fluent/plugin/out_elasticsearch.rb:637:in `send_bulk'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluent-plugin-elasticsearch-3.0.2/lib/fluent/plugin/out_elasticsearch.rb:544:in `block in write'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluent-plugin-elasticsearch-3.0.2/lib/fluent/plugin/out_elasticsearch.rb:543:in `each'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluent-plugin-elasticsearch-3.0.2/lib/fluent/plugin/out_elasticsearch.rb:543:in `write'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluentd-1.3.2/lib/fluent/plugin/output.rb:1123:in `try_flush'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluentd-1.3.2/lib/fluent/plugin/output.rb:1423:in `flush_thread_run'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluentd-1.3.2/lib/fluent/plugin/output.rb:452:in `block (2 levels) in start'
+  2019-01-20 20:26:04 +0000 [warn]: #0 /usr/lib/ruby/gems/2.5.0/gems/fluentd-1.3.2/lib/fluent/plugin_helper/thread.rb:78:in `block in thread_create'
+2019-01-20 20:26:05 +0000 [warn]: #0 failed to flush the buffer. retry_time=1 next_retry_seconds=2019-01-20 20:26:06 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:26:05 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:26:06 +0000 [warn]: #0 failed to flush the buffer. retry_time=2 next_retry_seconds=2019-01-20 20:26:08 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:26:06 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:26:08 +0000 [warn]: #0 failed to flush the buffer. retry_time=3 next_retry_seconds=2019-01-20 20:26:12 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:26:08 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:26:12 +0000 [warn]: #0 failed to flush the buffer. retry_time=4 next_retry_seconds=2019-01-20 20:26:21 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:26:12 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:26:21 +0000 [warn]: #0 failed to flush the buffer. retry_time=5 next_retry_seconds=2019-01-20 20:26:36 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:26:21 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:26:36 +0000 [warn]: #0 failed to flush the buffer. retry_time=6 next_retry_seconds=2019-01-20 20:27:08 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:26:36 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:27:08 +0000 [warn]: #0 failed to flush the buffer. retry_time=7 next_retry_seconds=2019-01-20 20:28:11 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:27:08 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:28:11 +0000 [warn]: #0 failed to flush the buffer. retry_time=8 next_retry_seconds=2019-01-20 20:30:12 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:28:11 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:30:12 +0000 [warn]: #0 failed to flush the buffer. retry_time=9 next_retry_seconds=2019-01-20 20:34:54 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:30:12 +0000 [warn]: #0 suppressed same stacktrace
+2019-01-20 20:34:54 +0000 [warn]: #0 failed to flush the buffer. retry_time=10 next_retry_seconds=2019-01-20 20:42:47 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
+  2019-01-20 20:34:54 +0000 [warn]: #0 suppressed same stacktrace
