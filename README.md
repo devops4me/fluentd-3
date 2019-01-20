@@ -5,13 +5,27 @@ This use case is about ***fluentd** pumping docker logs from one or more contain
 
 ## Startup ElasticSearch and Kibana
 
+Let's create a baseline by ***removing all docker containers and images*** from our machine.
+
 ```bash
+docker rm -vf $(docker ps -aq)
+docker rmi $(docker images -aq) --force
+
 docker pull docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0
+
 docker pull docker.elastic.co/kibana/kibana:6.0.0
-docker run -d --rm -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "transport.host=127.0.0.1" -e ELASTIC_PASSWORD=secret --name elastic docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0 && sleep 20
-docker run -d --rm --link elastic:elastic-url -e "ELASTICSEARCH_URL=http://elastic-url:9200" -e ELASTICSEARCH_PASSWORD="secret"  -p 5601:5601 --name kibana docker.elastic.co/kibana/kibana:6.0.0 && sleep 20docker run -d --rm --link elastic:elastic-url -e "ELASTICSEARCH_URL=http://elastic-url:9200" -e ELASTICSEARCH_PASSWORD="secret"  -p 5601:5601 --name kibana docker.elastic.co/kibana/kibana:6.0.0 && sleep 20
+
+docker run -d --rm -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "transport.host=127.0.0.1" -e ELASTIC_PASSWORD=secret --name elastic-db docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0 && sleep 20
+
+docker run -d --rm --link elastic-db -e "ELASTICSEARCH_URL=http://elastic-db:9200" -e ELASTICSEARCH_PASSWORD="secret"  -p 5601:5601 --name kibana docker.elastic.co/kibana/kibana:6.0.0 && sleep 20
+
 curl "http://localhost:9200/_count" -u 'elastic:secret' && echo
-curl -XPUT http://localhost:9200/log-elk-stack-18205-1708/movie/1  -u 'elastic:secret' -d '{"director": "Burton, Tim", "genre": ["Comedy","Sci-Fi"], "year": 1996, "actor": ["Jack Nicholson","Pierce Brosnan","Sarah Jessica Parker"], "title": "Mars Attacks!"}' -H 'Content-Type: application/json'
+
+curl -XPUT http://localhost:9200/sanity-check-index/movie/1  -u 'elastic:secret' -d '{"director": "Burton, Tim", "genre": ["Comedy","Sci-Fi"], "year": 1996, "actor": ["Jack Nicholson","Pierce Brosnan","Sarah Jessica Parker"], "title": "Mars Attacks!"}' -H 'Content-Type: application/json' && echo
+
+docker ps -a
+
+docker images -a
 ```
 
 Now that we have data in elasticsearch we can login to Kibana with
