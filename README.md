@@ -2,23 +2,102 @@
 
 # Docker Logs to Fluentd and Elasticsearch
 
-**fluentd** will pump logs **from docker containers to an ***elasticsearch database***. These logs can then be viewed via a docker **kibana user interface** that reads from the elasticsearch database.
+**fluentd** will pump logs from docker containers to an ***elasticsearch database***. These logs can then be viewed via a docker **kibana user interface** that reads from the elasticsearch database. With this plan you
 
-## Startup ElasticSearch and Kibana
+- run an **`elasticsearch`** docker container
+- run a **`kibana`** docker container
+- run a **`fluentd (logstash)`** docker container
+- use docker's **`fluentd log-driver`** switch to run a container
+- login to the **`kibana ui`** to visualize the logs
 
-Let's create a baseline by ***removing all docker containers and images*** from our machine.
+---
+
+## docker run elasticsearch
 
 ```bash
-docker rm -vf $(docker ps -aq)
-docker rmi $(docker images -aq) --force
+docker run --detach --rm
+    --publish 9200:9200
+    --publish 9300:9300
+    --env discovery.type=single-node
+    --env transport.host=127.0.0.1
+    --env ELASTIC_PASSWORD=secret
+    --name elastic-db
+    docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0 && sleep 20
+```
 
-############## docker pull docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0
-############## docker pull docker.elastic.co/kibana/kibana:6.0.0
+*The sleep commands give the containers breathing space before client connections are made.*
 
-docker run -d --rm -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "transport.host=127.0.0.1" -e ELASTIC_PASSWORD=secret --name elastic-db docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0 && sleep 20
+---
 
-docker run -d --rm --link elastic-db -e "ELASTICSEARCH_URL=http://elastic-db:9200" -e ELASTICSEARCH_PASSWORD="secret"  -p 5601:5601 --name kibana docker.elastic.co/kibana/kibana:6.0.0 && sleep 20
+## docker run kibana
 
+#### @todo - attempt setting ( --network host ) and then eradicate the elastic-db container name which is then replaceable by localhost
+#### @todo - try removing the legacy link option switch if the above --network host is successful
+#### @todo - try updating the versions of both elasticsearch and kibana
+
+```bash
+docker run --detach --rm
+    --publish 5601:5601
+    --link elastic-db
+    --env "ELASTICSEARCH_URL=http://elastic-db:9200"
+    --env ELASTICSEARCH_PASSWORD=secret
+    --name kibana-ui
+    docker.elastic.co/kibana/kibana:6.0.0 && sleep 20
+```
+
+---
+
+## docker run devops4me/fluentd-es
+
+The [Dockerfile](Dockerfile) manifest for **`devops4me/fluentd-es`** does 2 things to the log collector container. It
+
+- installs **`fluentd's elasticsearch plugin`** *and*
+- copies the **[fluentd configuration](fluentd-logs.conf)** file
+
+You could build the image using **`docker build --rm --no-cache --tag fluent4me .`** or simply run it with the below ***docker run***.
+
+```bash
+docker run --interactive --tag
+    --name fluentd.logs
+    --network host
+    --publish 24224:24224
+    --env FLUENTD_CONF=fluentd-logs.conf
+    fluent4me
+
+==> or devops4me/fluentd-es
+```
+
+#### localhost in [fluentd-logs.conf](fluentd-logs.conf)
+
+**`localhost`** in fluentd-logs.conf reaches elasticsearch because we used **`--network=host`** to run the fluentd container. Without it we would need the precise IP address or hostname for the host parameter.
+
+---
+
+
+## docker run with --log-driver=fluentd
+
+#### --log-opt fluentd-address=localhost:24224
+
+Again the **`--network host`** switch (in both) allows us to access the fluentd (logstash) log collector without stating the precise ip address or hostname.
+
+```bash
+docker run --tty --privileged --detach \
+    --network host
+    --log-driver fluentd \
+    --log-opt fluentd-address=192.168.0.23:24224 \
+    --volume /var/run/docker.sock:/var/run/docker.sock \
+    --volume /usr/bin/docker:/usr/bin/docker \
+    --publish 8080:8080       \
+    --name jenkins-2.0     \
+    devops4me/jenkins-2.0
+```
+
+
+
+
+---
+
+```bash
 curl "http://localhost:9200/_count" -u 'elastic:secret' && echo
 
 curl -XPUT http://localhost:9200/sanity-check-index/movie/1  -u 'elastic:secret' -d '{"director": "Burton, Tim", "genre": ["Comedy","Sci-Fi"], "year": 1996, "actor": ["Jack Nicholson","Pierce Brosnan","Sarah Jessica Parker"], "title": "Mars Attacks!"}' -H 'Content-Type: application/json' && echo
@@ -44,13 +123,6 @@ Now that we have data in elasticsearch we can login to Kibana with
 cd /directory/containing/fluentd-config.conf
 
 docker build --rm --no-cache --tag fluent4me .
-
-docker run -it            \
-    --name fluentd.logs   \
-    --publish 24224:24224 \
-    --env FLUENTD_CONF=fluentd-logs.conf \
-    --volume $PWD/fluentd-logs.conf:/fluentd/etc/fluentd-logs.conf \
-    fluent/fluentd:latest
 
 docker run -it            \
     --name fluentd.logs   \
@@ -403,3 +475,17 @@ In a more serious environment, you would want to use something other than the Fl
   2019-01-20 20:30:12 +0000 [warn]: #0 suppressed same stacktrace
 2019-01-20 20:34:54 +0000 [warn]: #0 failed to flush the buffer. retry_time=10 next_retry_seconds=2019-01-20 20:42:47 +0000 chunk="57fe98a1d9e7b00b031cc61d781d7168" error_class=Fluent::Plugin::ElasticsearchOutput::RecoverableRequestFailure error="could not push logs to Elasticsearch cluster ({:host=>\"localhost\", :port=>9200, :scheme=>\"http\", :user=>\"elastic\", :password=>\"obfuscated\"}): Address not available - connect(2) for [::1]:9200 (Errno::EADDRNOTAVAIL)"
   2019-01-20 20:34:54 +0000 [warn]: #0 suppressed same stacktrace
+
+
+
+
+## Appendices
+
+### Remove all Docker Containers and Images
+
+Wipe the docker slate clean by ***removing all containers and images*** with these commands.
+
+```bash
+docker rm -vf $(docker ps -aq)
+docker rmi $(docker images -aq) --force
+```
