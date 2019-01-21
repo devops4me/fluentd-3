@@ -4,15 +4,15 @@
 
 **fluentd** will pump logs from docker containers to an ***elasticsearch database***. These logs can then be viewed via a docker **kibana user interface** that reads from the elasticsearch database. With this plan you
 
-- run an **`elasticsearch`** docker container
-- run a **`kibana`** docker container
-- run a **`fluentd (logstash)`** docker container
-- use docker's **`fluentd log-driver`** switch to run a container
-- login to the **`kibana ui`** to visualize the logs
+- 1. run an **`elasticsearch`** docker container
+- 2. run a **`kibana`** docker container
+- 3. run a **`fluentd (logstash)`** docker container
+- 4. use docker's **`fluentd log-driver`** switch to run a container
+- 5. login to the **`kibana ui`** to visualize the logs
 
 ---
 
-## docker run elasticsearch
+## 1 | docker run elasticsearch
 
 ```bash
 docker run --detach --rm
@@ -29,7 +29,7 @@ docker run --detach --rm
 
 ---
 
-## docker run kibana
+## 2 | docker run kibana
 
 #### @todo - attempt setting ( --network host ) and then eradicate the elastic-db container name which is then replaceable by localhost
 #### @todo - try removing the legacy link option switch if the above --network host is successful
@@ -47,12 +47,12 @@ docker run --detach --rm
 
 ---
 
-## docker run devops4me/fluentd-es
+## 3 | docker run devops4me/fluentd-es
 
-The [Dockerfile](Dockerfile) manifest for **`devops4me/fluentd-es`** does 2 things to the log collector container. It
+The **[Dockerfile](Dockerfile)** manifest for **`devops4me/fluentd-es`** does 2 things to the log collector container. It
 
 - installs **`fluentd's elasticsearch plugin`** *and*
-- copies the **[fluentd configuration](fluentd-logs.conf)** file
+- copies the **[fluentd configuration](fluentd-logs.conf)** file into it
 
 You could build the image using **`docker build --rm --no-cache --tag fluent4me .`** or simply run it with the below ***docker run***.
 
@@ -74,7 +74,7 @@ docker run --interactive --tag
 ---
 
 
-## docker run with --log-driver=fluentd
+## 4 | docker run with --log-driver=fluentd
 
 #### --log-opt fluentd-address=localhost:24224
 
