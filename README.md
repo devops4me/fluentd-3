@@ -141,8 +141,11 @@ The **smoke test in step 4** used **`docker log-driver`** to write to our fluent
 - enter username **`elastic`**
 - enter password **`secret`**
 - click on **`Discover`**
+- create a **`logstash-* index pattern`**
 - find **`last 15 minutes`** at the top right
 - change to **`last 7 days`**
+
+The very first time we need to create an index pattern. The fluentd container always sends data with indices beginning with **`logstash-`** and ending in a date. Set the time field to **`@timestamp`**. Once created set the index pattern as the default and select an appropriate time range.
 
 Our **`supercalifragilistic`** log should appear.  Open it up with the little arrow or choose to view it in JSON.
 
@@ -150,10 +153,10 @@ Our **`supercalifragilistic`** log should appear.  Open it up with the little ar
 ### kibana screenshot of log from docker container
 
 <!---
-![kibana screenshot of smoke test log](kibana-log-from-fluentd.png)
+![kibana screenshot of smoke test log](kibana-fluentd-ui.png)
 -->
 
-<img src="kibana-log-from-fluentd.png" width="75%">
+<img src="kibana-fluentd-ui.png" width="75%">
 
 ***The screenshot shows that our smoke test log is in the elasticsearch database and accessible via the Kibana visualization user interface.***
 
