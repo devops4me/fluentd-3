@@ -135,7 +135,7 @@ This query verifies that our **`supercalifragilistic`** log document is in the e
 
 ## 5 | kibana visualize
 
-The ***smoke test in step 4** used **`docker log-driver`** to write to our fluentd container which **(after one minute due to near real time)** makes the log available in the Kibana user interface. To view the log you
+The **smoke test in step 4** used **`docker log-driver`** to write to our fluentd container which **(after one minute due to near real time)** makes the log available in the Kibana user interface. To view the log you
 
 - visit url **`http://localhost:5601`**
 - enter username **`elastic`**
@@ -149,7 +149,11 @@ Our **`supercalifragilistic`** log should appear.  Open it up with the little ar
 
 ### kibana screenshot of log from docker container
 
+<!---
 ![kibana screenshot of smoke test log](kibana-log-from-fluentd.png)
+-->
+
+<img src="kibana-log-from-fluentd.png" width="50%">
 
 ***The screenshot shows that our smoke test log is in the elasticsearch database and accessible via the Kibana visualization user interface.***
 
