@@ -193,8 +193,6 @@ yellow open   .watcher-history-6-2019.01.21   xn8EFUksTpOj0ZkDXA7dWw   1   1    
 
 ```bash
 curl "http://localhost:9200/_count" -u 'elastic:secret' && echo
-
-curl -XPUT http://localhost:9200/sanity-check-index/movie/1  -u 'elastic:secret' -d '{"director": "Burton, Tim", "genre": ["Comedy","Sci-Fi"], "year": 1996, "actor": ["Jack Nicholson","Pierce Brosnan","Sarah Jessica Parker"], "title": "Mars Attacks!"}' -H 'Content-Type: application/json' && echo
 ```
 
 
@@ -231,9 +229,11 @@ https://www.fluentd.org/guides/recipes/docker-logging
 
 -->
 
+
 ## Appendices
 
-### Remove all Docker Containers and Images
+
+### A - Remove all Docker Containers and Images
 
 Wipe the docker slate clean by ***removing all containers and images*** with these commands.
 
@@ -244,7 +244,62 @@ docker ps -a
 docker images -a
 ```
 
-### fluentd logs 4 [Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)
+
+### B - Count Documents in ElasticSearch
+
+Count the number of documents in the elasticsearch database. Choose the command below and substitute the url and username / password if necessary.
+
+```bash
+curl "http://<<elasticsearch-url>>/_count?pretty"
+curl "http://<<elasticsearch-url>>/_count?pretty" -u '<<username>>:<<password>>'
+curl "http://localhost:9200/_count?pretty" -u '<<username>>:<<password>>'
+```
+
+### C - Put Documents into ElasticSearch
+
+Choose the command below and substitute url and username password if necessary.
+
+
+#### Put Without Username / Password
+
+```bash
+curl -XPUT http://<<elasticsearch-url>>/film-index/film/1 -d \
+'{
+"director": "Burton, Tim",
+"genre": ["Comedy","Sci-Fi"],
+"year": 1996,
+"actor": ["Jack Nicholson","Pierce Brosnan","Sarah Jessica Parker"],
+"title": "Apollo 13"
+}' \
+-H 'Content-Type: application/json' | jq .
+
+curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -d \
+'{
+"director": "Michael Jackson",
+"genre": ["Comedy","Sci-Fi"],
+"year": 2001,
+"actor": ["Jack Nicholson","Pierce Brosnan","Sarah Jessica Parker"],
+"title": "Billi Jean"
+}' \
+-H 'Content-Type: application/json' | jq .
+```
+
+#### Put With Username / Password
+
+```bash
+curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -u '<<username>>:<<password>>' -d \
+'{
+"director": "Michael Jackson",
+"genre": ["Comedy","Sci-Fi"],
+"year": 2001,
+"actor": ["Jack Nicholson","Pierce Brosnan","Sarah Jessica Parker"],
+"title": "Billi Jean"
+}' \
+-H 'Content-Type: application/json' | jq .
+```
+
+
+### D - fluentd logs 4 [Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)
 
 Let's adapt the **[Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)** container to send its logs via fluentd to an elasticsearch instance in localhost.
 
