@@ -4,11 +4,11 @@
 
 **fluentd** will pump logs from docker containers to an ***elasticsearch database***. These logs can then be viewed via a docker **kibana user interface** that reads from the elasticsearch database. With this plan you
 
-- 1. run an **`elasticsearch`** docker container
-- 2. run a **`kibana`** docker container
-- 3. run a **`fluentd (logstash)`** docker container
-- 4. use docker's **`fluentd log-driver`** switch to run a container
-- 5. login to the **`kibana ui`** to visualize the logs
+1. run an **`elasticsearch`** docker container
+1. run a **`kibana`** docker container
+1. run a **`fluentd (logstash)`** docker container
+1. use docker's **`fluentd log-driver`** switch to run a container
+1. login to the **`kibana ui`** to visualize the logs
 
 ---
 
@@ -47,7 +47,7 @@ docker run --detach --rm
 
 ---
 
-## 3 | docker run devops4me/fluentd-es
+## 3 | docker run fluentd (logstash)
 
 The **[Dockerfile](Dockerfile)** manifest for **`devops4me/fluentd-es`** does 2 things to the log collector container. It
 
@@ -74,7 +74,7 @@ docker run --interactive --tag
 ---
 
 
-## 4 | docker run with --log-driver=fluentd
+## 4 | docker run | --log-driver fluentd
 
 #### --log-opt fluentd-address=localhost:24224
 
