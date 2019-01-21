@@ -153,12 +153,14 @@ Our **`supercalifragilistic`** log should appear.  Open it up with the little ar
 ![kibana screenshot of smoke test log](kibana-log-from-fluentd.png)
 -->
 
-<img src="kibana-log-from-fluentd.png" width="50%">
+<img src="kibana-log-from-fluentd.png" width="75%">
 
 ***The screenshot shows that our smoke test log is in the elasticsearch database and accessible via the Kibana visualization user interface.***
 
 ---
 
+
+<!---
 
 ## Useful Commands
 
@@ -196,8 +198,6 @@ curl -XPUT http://localhost:9200/sanity-check-index/movie/1  -u 'elastic:secret'
 ```
 
 
-
-
 ```bash
 curl -XPUT 'localhost:9200/get-together/group/1?pretty' -u 'elastic:secret' -d '{
 "name": "Elasticsearch Denver",
@@ -229,7 +229,7 @@ https://raw.githubusercontent.com/fluent/fluentd-docker-image/master/v1.3/alpine
 
 https://www.fluentd.org/guides/recipes/docker-logging
 
-
+-->
 
 ## Appendices
 
