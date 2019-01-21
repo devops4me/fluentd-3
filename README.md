@@ -131,9 +131,7 @@ This query verifies that our **`supercalifragilistic`** log document is in the e
 }
 ```
 
-
 ---
-
 
 ## 5 | kibana visualize
 
@@ -143,28 +141,33 @@ The ***smoke test in step 4** used **`docker log-driver`** to write to our fluen
 - enter username **`elastic`**
 - enter password **`secret`**
 - click on **`Discover`**
+- find **`last 15 minutes`** at the top right
+- change to **`last 7 days`**
+
+Our **`supercalifragilistic`** log should appear.  Open it up with the little arrow or choose to view it in JSON.
+
+
+### kibana screenshot of log from docker container
 
 ![kibana screenshot of smoke test log](kibana-log-from-fluentd.png)
 
 ***The screenshot shows that our smoke test log is in the elasticsearch database and accessible via the Kibana visualization user interface.***
 
+---
 
 
+## Useful Commands
+
+```bash
 curl 'localhost:9200/logstash-2019.01.21/_doc/1?pretty' -u 'elastic:secret'
-
 curl 'localhost:9200/_search?q=apollo&pretty' -u 'elastic:secret'
-
 curl 'localhost:9200/_search?q=jenkins&pretty' -u 'elastic:secret'
-
 curl 'localhost:9200/logstash-2019.01.21/_mapping/group?pretty' -u 'elastic:secret'
-
 curl 'localhost:9200/logstash-2019.01.21/_mapping/group?pretty' -u 'elastic:secret'
-
 curl 'localhost:9200/_search?q=smoke&pretty' -u 'elastic:secret'
-
 curl 'localhost:9200/_search?q=jenkins&pretty' -u 'elastic:secret'
-
 curl 'localhost:9200/_cat/indices?v&pretty' -u 'elastic:secret'
+```
 
 
 #### `curl 'localhost:9200/_cat/indices?v&pretty' -u 'elastic:secret'`
@@ -180,9 +183,6 @@ yellow open   .kibana                         3aV5WqlIQoyBMWsqmYEFJg   1   1    
 yellow open   .monitoring-alerts-6            0fa4o5CARvCyFdejexm4yA   1   1          1            0      6.5kb          6.5kb
 yellow open   .watcher-history-6-2019.01.21   xn8EFUksTpOj0ZkDXA7dWw   1   1        406            0    562.8kb        562.8kb
 ```
-
-
-
 
 
 ```bash
@@ -215,8 +215,6 @@ curl 'localhost:9200/.watcher-history-6-2019.01.19/_search?q=*&pretty' -u 'elast
 ```
 
 
-
-
 ## ElasticSearch and S3
 
 #### excellent information
@@ -226,13 +224,6 @@ https://www.fluentd.org/guides/recipes/elasticsearch-and-s3
 https://raw.githubusercontent.com/fluent/fluentd-docker-image/master/v1.3/alpine-onbuild/fluent.conf
 
 https://www.fluentd.org/guides/recipes/docker-logging
-
-
-
-
-
-
-
 
 
 
