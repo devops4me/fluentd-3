@@ -300,7 +300,7 @@ curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -u '<<username>>:<<pas
 ```
 
 
-### D - fluentd logs 4 [Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)
+### D - send [jenkins](https://github.com/devops4me/jenkins-2.0) logs to fluentd
 
 Let's adapt the **[Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)** container to send its logs via fluentd to an elasticsearch instance in localhost.
 
@@ -316,7 +316,7 @@ docker run --tty --privileged --detach \
     devops4me/jenkins-2.0
 ```
 
-### E - fluentd | docker hub build and push
+### E - fluentd | docker build | docker push
 
 This example employs the **`safe credentials manager`** for keeping dockerhub credentials safe.
 
