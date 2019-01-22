@@ -1,6 +1,6 @@
 #### The primary use case involves containerized apps using a *fluentd docker log-driver* to push logs to a fluentd container that in turn forwards them to an elasticsearch instance. The secondary use case is visualizing the logs via a Kibana container linked to elasticsearch.
 
-# Docker Logs to Fluentd and Elasticsearch
+# Send Docker Logs to Fluentd and Elasticsearch
 
 **fluentd** will pump logs from docker containers to an ***elasticsearch database***. These logs can then be viewed via a docker **kibana user interface** that reads from the elasticsearch database. With this plan you
 
