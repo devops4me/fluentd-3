@@ -77,9 +77,7 @@ docker run --interactive --tty \
 
 ## 4 | docker run | --log-driver fluentd
 
-***Let's run Jenkins locally and set its log driver to a fluentd docker container that we've started locally and configured to push to the local elasticsearch container started above.***
-
-#### --log-opt fluentd-address=localhost:24224
+You append **`--log-driver fluentd`** and **`--log-opt fluentd-address=localhost:24224`** to the docker run of any container you wish to collect logs from. Docker will then push its stdout logs to our on-board fluentd / logstash collector.
 
 ```bash
 docker run                \
@@ -320,7 +318,7 @@ docker run --tty --privileged --detach \
 
 ### E - fluentd | docker hub build and push
 
-This example emmploys the **`safe credentials manager`** for keeping dockerhub credentials safe.
+This example employs the **`safe credentials manager`** for keeping dockerhub credentials safe.
 
 ```bash
 docker build --rm --no-cache --tag devops4me/fluentd .
