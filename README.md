@@ -75,7 +75,7 @@ docker run --interactive --tty \
 ---
 
 
-## 4 | docker run | --log-driver fluentd
+## 4 | docker run --log-driver fluentd
 
 You append **`--log-driver fluentd`** and **`--log-opt fluentd-address=localhost:24224`** to the docker run of any container you wish to collect logs from. Docker will then push its stdout logs to our on-board fluentd / logstash collector.
 
