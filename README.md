@@ -234,19 +234,7 @@ https://www.fluentd.org/guides/recipes/docker-logging
 ## Appendices
 
 
-### A - Remove all Docker Containers and Images
-
-Wipe the docker slate clean by ***removing all containers and images*** with these commands.
-
-```bash
-docker rm -vf $(docker ps -aq)
-docker rmi $(docker images -aq) --force
-docker ps -a
-docker images -a
-```
-
-
-### B - Count Documents in ElasticSearch
+### A - Count Documents in ElasticSearch
 
 Count the number of documents in the elasticsearch database. Choose the command below and substitute the url and username / password if necessary.
 
@@ -256,7 +244,7 @@ curl "http://<<elasticsearch-url>>/_count?pretty" -u '<<username>>:<<password>>'
 curl "http://localhost:9200/_count?pretty" -u '<<username>>:<<password>>'
 ```
 
-### C - Put Documents into ElasticSearch
+### B - Put Documents into ElasticSearch
 
 Choose the command below and substitute url and username password if necessary.
 
@@ -300,23 +288,23 @@ curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -u '<<username>>:<<pas
 ```
 
 
-### D - send [jenkins](https://github.com/devops4me/jenkins-2.0) logs to fluentd
+### C - send [jenkins](https://github.com/devops4me/jenkins-2.0) logs to fluentd
 
 Let's adapt the **[Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)** container to send its logs via fluentd to an elasticsearch instance in localhost.
 
 ```bash
-docker run --tty --privileged --detach \
-    --network host
-    --log-driver fluentd \
-    --log-opt fluentd-address=localhost:24224 \
+docker run --tty --privileged --detach                 \
+    --network host                                     \
+    --log-driver fluentd                               \
+    --log-opt fluentd-address=localhost:24224          \
     --volume /var/run/docker.sock:/var/run/docker.sock \
-    --volume /usr/bin/docker:/usr/bin/docker \
-    --publish 8080:8080       \
-    --name jenkins-2.0     \
+    --volume /usr/bin/docker:/usr/bin/docker           \
+    --publish 8080:8080                                \
+    --name jenkins-2.0                                 \
     devops4me/jenkins-2.0
 ```
 
-### E - fluentd | docker build | docker push
+### D - fluentd | docker build | docker push
 
 This example employs the **`safe credentials manager`** for keeping dockerhub credentials safe.
 
@@ -328,4 +316,16 @@ docker push devops4me/fluentd
 docker tag devops4me/fluentd devops4me/fluentd:v0.1.0001
 docker push devops4me/fluentd:v0.1.0001
 safe docker logout
+```
+
+
+### E - Remove all Docker Containers and Images
+
+Wipe the docker slate clean by ***removing all containers and images*** with these commands.
+
+```bash
+docker rm -vf $(docker ps -aq)
+docker rmi $(docker images -aq) --force
+docker ps -a
+docker images -a
 ```
