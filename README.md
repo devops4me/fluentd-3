@@ -317,3 +317,17 @@ docker run --tty --privileged --detach \
     --name jenkins-2.0     \
     devops4me/jenkins-2.0
 ```
+
+### E - fluentd | docker hub build and push
+
+This example emmploys the **`safe credentials manager`** for keeping dockerhub credentials safe.
+
+```bash
+docker build --rm --no-cache --tag devops4me/fluentd .
+safe open dockerhub devops4me
+safe docker login
+docker push devops4me/fluentd
+docker tag devops4me/fluentd devops4me/fluentd:v0.1.0001
+docker push devops4me/fluentd:v0.1.0001
+safe docker logout
+```
