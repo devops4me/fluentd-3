@@ -64,9 +64,7 @@ docker run --interactive --tty                          \
     --env FLUENTD_CONF=fluentd-elasticsearch-local.conf \
     --env ELASTICSEARCH_USERNAME=<<username>            \
     --env ELASTICSEARCH_PASSWORD=<<password>>           \
-    fluent4me
-
-==> or devops4me/fluentd-es
+    devops4me/fluentd
 ```
 
 #### localhost in [fluentd-logs.conf](fluentd-logs.conf)
