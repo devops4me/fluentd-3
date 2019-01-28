@@ -10,8 +10,12 @@ RUN gem install fluent-plugin-elasticsearch
 RUN gem install fluent-plugin-s3
 
 # --->
-# ---> Copy the fluentd configuration file  as long
-# ---> as it does not contain sensitive information
+# ---> Copy all the configuration files with directives
+# ---> that can be set via environment variables.
+# --->
+# ---> The file that will be used is set in the
+# ---> fluentd docker run command.
 # --->
 
-COPY fluentd-logs.conf /fluentd/etc/fluentd-logs.conf
+COPY fluentd-elasticsearch-local.conf /fluentd/etc/fluentd-elasticsearch-local.conf
+COPY fluentd-elasticsearch-s3.conf /fluentd/etc/fluentd-elasticsearch-s3.conf

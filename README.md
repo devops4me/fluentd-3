@@ -57,11 +57,13 @@ The **[Dockerfile](Dockerfile)** manifest for **`devops4me/fluentd-es`** does 2 
 You could build the image using **`docker build --rm --no-cache --tag fluent4me .`** or simply run it with the below ***docker run***.
 
 ```bash
-docker run --interactive --tty \
-    --name manual.fluentd.logs        \
-    --network host             \
-    --publish 24224:24224      \
-    --env FLUENTD_CONF=fluentd-logs.conf \
+docker run --interactive --tty                          \
+    --name manual.fluentd.logs                          \
+    --network host                                      \
+    --publish 24224:24224                               \
+    --env FLUENTD_CONF=fluentd-elasticsearch-local.conf \
+    --env ELASTICSEARCH_USERNAME=<<username>            \
+    --env ELASTICSEARCH_PASSWORD=<<password>>           \
     fluent4me
 
 ==> or devops4me/fluentd-es
