@@ -329,3 +329,7 @@ docker rmi $(docker images -aq) --force
 docker ps -a
 docker images -a
 ```
+
+### F - Documentation for the S3 Plugin
+
+https://www.elastic.co/guide/en/logstash/current/plugins-outputs-s3.html
