@@ -58,7 +58,7 @@ You could build the image using **`docker build --rm --no-cache --tag fluent4me 
 
 ```bash
 docker run --interactive --tty \
-    --name fluentd.logs        \
+    --name manual.fluentd.logs        \
     --network host             \
     --publish 24224:24224      \
     --env FLUENTD_CONF=fluentd-logs.conf \
@@ -309,6 +309,7 @@ docker run --tty --privileged --detach                 \
 This example employs the **`safe credentials manager`** for keeping dockerhub credentials safe.
 
 ```bash
+cd /path/to/fluentd/project
 docker build --rm --no-cache --tag devops4me/fluentd .
 safe open dockerhub devops4me
 safe docker login
@@ -317,7 +318,6 @@ docker tag devops4me/fluentd devops4me/fluentd:v0.1.0001
 docker push devops4me/fluentd:v0.1.0001
 safe docker logout
 ```
-
 
 ### E - Remove all Docker Containers and Images
 
