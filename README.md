@@ -47,14 +47,13 @@ docker run --detach --rm \
 
 ---
 
+
 ## 3 | docker run fluentd (logstash)
 
-The **[Dockerfile](Dockerfile)** manifest for **`devops4me/fluentd-es`** does 2 things to the log collector container. It
+There are 2 command types in the  **[Dockerfile](Dockerfile)** for **`devops4me/fluentd`**. Each command
 
-- installs **`fluentd's elasticsearch plugin`** *and*
-- copies the **[fluentd configuration](fluentd-logs.conf)** file into it
-
-You could build the image using **`docker build --rm --no-cache --tag fluent4me .`** or simply run it with the below ***docker run***.
+- **either** installs a **`fluentd plugin`**
+- **or** it pulls in a **fluentd configuration** template
 
 ```bash
 docker run --interactive --tty                          \
@@ -66,6 +65,24 @@ docker run --interactive --tty                          \
     --env ELASTICSEARCH_PASSWORD=<<password>>           \
     devops4me/fluentd
 ```
+
+***In docker run the **`FLUENTD_CONF`** environment variable selects a configuration file. You then pass other mandatory/optional configuration directives as documented in the tables below.***
+
+### fluentd-elasticsearch-s3.conf
+
+With this config fluentd pushes out logs to **an elasticsearch instance** and **an AWS S3 bucket**.
+
+| Environment Variable       | Mandatory? | Fluentd Configuration Explained |
+|:-------------------------- |:----------:|:------------------------------- |
+| **ELASTICSEARCH_HOSTNAME** | Mandatory  | Hostname, url or IP Address |
+| **ELASTICSEARCH_PORT** | Mandatory  | Hostname, url or IP Address |
+| **ELASTICSEARCH_SCHEME** | Optional | Usually either 9200, 443 for https or 80 for the **default** http |
+| **ELASTICSEARCH_PREFIX** | Optional | elasticsearch document index name will be prefixed with this. |
+| **ELASTICSEARCH_TYPE_NAME** | Optional | elasticsearch document type name. |
+| **S3_BUCKET_NAME** | Mandatory | The name of the S3 bucket to copy logs to. |
+| **S3_BUCKET_REGION** | Mandatory | The AWS region the bucket is in. |
+| **S3_BUCKET_FILE_TYPE** | Optional | Default is json but you can also have gzip and txt. |
+
 
 #### localhost in [fluentd-logs.conf](fluentd-logs.conf)
 
