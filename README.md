@@ -87,8 +87,9 @@ docker run --interactive --tty                           \
 
 #### simple elasticsearch| example docker run
 
+```bash
 docker run --interactive --tty                           \
-    --name fluentd.es.logs                               \
+    --name fluentd.simple.logs                           \
     --network host                                       \
     --publish 24224:24224                                \
     --env FLUENTD_CONF=fluentd-elasticsearch-simple.conf \
@@ -97,20 +98,26 @@ docker run --interactive --tty                           \
     --env ELASTICSEARCH_USERNAME=elastic                 \
     --env ELASTICSEARCH_PASSWORD=secret                  \
     devops4me/fluentd
+```
+
+This **`localhost`** reaches elasticsearch if we use **`--network=host`** to run both the fluentd container as well as the docker containers that source the logs through the log-driver.
 
 ---
 
 
-### fluentd to S3 and elasticsearch | https
+### fluentd logs copied to S3 and elasticsearch | https
 
 ```bash
-docker run --interactive --tty                          \
-    --name manual.fluentd.logs                          \
-    --network host                                      \
-    --publish 24224:24224                               \
+docker run --interactive --tty                       \
+    --name manual.fluentd.logs                       \
+    --network host                                   \
+    --publish 24224:24224                            \
     --env FLUENTD_CONF=fluentd-elasticsearch-s3.conf \
-    --env ELASTICSEARCH_USERNAME=<<username>            \
-    --env ELASTICSEARCH_PASSWORD=<<password>>           \
+    --env ELASTICSEARCH_HOSTNAME=<<hostname>         \
+    --env ELASTICSEARCH_PORT=<<port>>                \
+    --env ELASTICSEARCH_SCHEME=<<scheme>             \
+    --env ELASTICSEARCH_USERNAME=<<username>         \
+    --env ELASTICSEARCH_PASSWORD=<<password>>        \
     devops4me/fluentd
 ```
 
@@ -133,17 +140,21 @@ With this config fluentd pushes out logs to **an elasticsearch instance** and **
 | **S3_BUCKET_FILE_TYPE** | Optional | Default is json but you can also have gzip and txt. |
 
 
-#### localhost in [fluentd-logs.conf](fluentd-logs.conf)
+#### s3 and elasticsearch| example docker run
 
-**`localhost`** in fluentd-logs.conf reaches elasticsearch because we used **`--network=host`** to run the fluentd container. Without it we would need the precise IP address or hostname for the host parameter.
-
-
-
-
-
-
-
-
+```bash
+docker run --interactive --tty                       \
+    --name fluentd.simple.logs                       \
+    --network host                                   \
+    --publish 24224:24224                            \
+    --env FLUENTD_CONF=fluentd-elasticsearch-s3.conf \
+    --env ELASTICSEARCH_HOSTNAME=xxxxxxxxxxx         \
+    --env ELASTICSEARCH_PORT=443                     \
+    --env ELASTICSEARCH_SCHEME=https                 \
+    --env S3_BUCKET_NAME=ecossssssssssssssssssss     \
+    --env S3_BUCKET_REGION=eu-west-xxxxxxxxxxxxxx    \
+    devops4me/fluentd
+```
 
 
 ---
