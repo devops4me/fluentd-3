@@ -124,8 +124,8 @@ docker run --interactive --tty                       \
     --env ELASTICSEARCH_HOSTNAME=<<hostname>         \
     --env ELASTICSEARCH_PORT=<<port>>                \
     --env ELASTICSEARCH_SCHEME=<<scheme>             \
-    --env S3_BUCKET_NAME=<<username>                 \
-    --env S3_BUCKET_REGION=<<password>>              \
+    --env S3_BUCKET_NAME=<<s3-bucket-name>>          \
+    --env S3_BUCKET_REGION=<<aws-region>>            \
     devops4me/fluentd
 ```
 
