@@ -15,10 +15,10 @@
 ## 1 | docker run elasticsearch
 
 ```bash
-docker run --detach --rm \
-    --name elastic-db    \
-    --publish 9200:9200  \
-    --publish 9300:9300  \
+docker run --detach --rm             \
+    --name elastic-db                \
+    --publish 9200:9200              \
+    --publish 9300:9300              \
     --env discovery.type=single-node \
     --env transport.host=127.0.0.1   \
     --env ELASTIC_PASSWORD=secret    \
@@ -45,15 +45,49 @@ docker run --detach --rm \
     docker.elastic.co/kibana/kibana:6.0.0 && sleep 20
 ```
 
+Use **`http://localhost:5601`** with username **`elastic`** and password **`secret`** to access Kibana.
+
 ---
 
 
 ## 3 | docker run fluentd (logstash)
 
-There are 2 command types in the  **[Dockerfile](Dockerfile)** for **`devops4me/fluentd`**. Each command
+Within the **[Dockerfile](Dockerfile)** for **`devops4me/fluentd`** every command
 
-- **either** installs a **`fluentd plugin`**
-- **or** it pulls in a **fluentd configuration** template
+- **either** installs a **fluentd plugin**
+- **or** it copies in a **configuration template**
+
+Select the configuration file that suits your needs and reference it in the  **`FLUENTD_CONF`** environment variable in **`docker run`** along with other options documented in the tables below.
+
+### fluentd to elasticsearch | http
+
+Fluentd/logstash sends its logs to an elasticsearch instance configured with a username password.
+
+```bash
+docker run --interactive --tty                          \
+    --name fluentd.es.logs                              \
+    --network host                                      \
+    --publish 24224:24224                               \
+    --env FLUENTD_CONF=fluentd-elasticsearch-local.conf \
+    --env ELASTICSEARCH_HOSTNAME=<<hostname>            \
+    --env ELASTICSEARCH_PORT=<<port>>                   \
+    --env ELASTICSEARCH_USERNAME=<<username>            \
+    --env ELASTICSEARCH_PASSWORD=<<password>>           \
+    devops4me/fluentd
+```
+
+| Environment Variable       | Mandatory? | Fluentd Configuration Explained |
+|:-------------------------- |:---------- |:------------------------------- |
+| **FLUENTD_CONF** | Mandatory  | Always use **`fluentd-elasticsearch-local.conf`** |
+| **ELASTICSEARCH_HOSTNAME** | Mandatory  | Hostname, url or IP Address |
+| **ELASTICSEARCH_PORT** | Mandatory  | Usually 9200 or 443 (https) and 80 for (http) |
+| **ELASTICSEARCH_SCHEME** | Optional | Defaults to **`http`** but you can pass in **`https`** |
+| **ELASTICSEARCH_USERNAME** | Mandatory  | Username configured in elasticsearch |
+| **ELASTICSEARCH_PASSWORD** | Mandatory  | Password configured in elasticsearch |
+
+---
+
+### fluentd to S3 and elasticsearch | https
 
 ```bash
 docker run --interactive --tty                          \
@@ -66,17 +100,18 @@ docker run --interactive --tty                          \
     devops4me/fluentd
 ```
 
-***In docker run the **`FLUENTD_CONF`** environment variable selects a configuration file. You then pass other mandatory/optional configuration directives as documented in the tables below.***
+***In docker run the selects a configuration file. You then pass other mandatory/optional configuration directives as documented in the tables below.***
 
 ### fluentd-elasticsearch-s3.conf
 
 With this config fluentd pushes out logs to **an elasticsearch instance** and **an AWS S3 bucket**.
 
 | Environment Variable       | Mandatory? | Fluentd Configuration Explained |
-|:-------------------------- |:----------:|:------------------------------- |
+|:-------------------------- |:---------- |:------------------------------- |
+| **FLUENTD_CONF** | Mandatory  | Always use **`fluentd-elasticsearch-s3.conf`** |
 | **ELASTICSEARCH_HOSTNAME** | Mandatory  | Hostname, url or IP Address |
-| **ELASTICSEARCH_PORT** | Mandatory  | Hostname, url or IP Address |
-| **ELASTICSEARCH_SCHEME** | Optional | Usually either 9200, 443 for https or 80 for the **default** http |
+| **ELASTICSEARCH_PORT** | Mandatory  | Usually 9200 or 443 (https) and 80 for (http) |
+| **ELASTICSEARCH_SCHEME** | Optional | Defaults to **`http`** but you can pass in **`https`** |
 | **ELASTICSEARCH_PREFIX** | Optional | elasticsearch document index name will be prefixed with this. |
 | **ELASTICSEARCH_TYPE_NAME** | Optional | elasticsearch document type name. |
 | **S3_BUCKET_NAME** | Mandatory | The name of the S3 bucket to copy logs to. |
@@ -87,6 +122,14 @@ With this config fluentd pushes out logs to **an elasticsearch instance** and **
 #### localhost in [fluentd-logs.conf](fluentd-logs.conf)
 
 **`localhost`** in fluentd-logs.conf reaches elasticsearch because we used **`--network=host`** to run the fluentd container. Without it we would need the precise IP address or hostname for the host parameter.
+
+
+
+
+
+
+
+
 
 
 ---
