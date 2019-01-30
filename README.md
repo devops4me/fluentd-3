@@ -64,28 +64,42 @@ Select the configuration file that suits your needs and reference it in the  **`
 Fluentd/logstash sends its logs to an elasticsearch instance configured with a username password.
 
 ```bash
-docker run --interactive --tty                          \
-    --name fluentd.es.logs                              \
-    --network host                                      \
-    --publish 24224:24224                               \
-    --env FLUENTD_CONF=fluentd-elasticsearch-local.conf \
-    --env ELASTICSEARCH_HOSTNAME=<<hostname>            \
-    --env ELASTICSEARCH_PORT=<<port>>                   \
-    --env ELASTICSEARCH_USERNAME=<<username>            \
-    --env ELASTICSEARCH_PASSWORD=<<password>>           \
+docker run --interactive --tty                           \
+    --name fluentd.es.logs                               \
+    --network host                                       \
+    --publish 24224:24224                                \
+    --env FLUENTD_CONF=fluentd-elasticsearch-simple.conf \
+    --env ELASTICSEARCH_HOSTNAME=<<hostname>             \
+    --env ELASTICSEARCH_PORT=<<port>>                    \
+    --env ELASTICSEARCH_USERNAME=<<username>             \
+    --env ELASTICSEARCH_PASSWORD=<<password>>            \
     devops4me/fluentd
 ```
 
 | Environment Variable       | Mandatory? | Fluentd Configuration Explained |
 |:-------------------------- |:---------- |:------------------------------- |
-| **FLUENTD_CONF** | Mandatory  | Always use **`fluentd-elasticsearch-local.conf`** |
+| **FLUENTD_CONF** | Mandatory  | Always use **`fluentd-elasticsearch-simple.conf`** |
 | **ELASTICSEARCH_HOSTNAME** | Mandatory  | Hostname, url or IP Address |
 | **ELASTICSEARCH_PORT** | Mandatory  | Usually 9200 or 443 (https) and 80 for (http) |
 | **ELASTICSEARCH_SCHEME** | Optional | Defaults to **`http`** but you can pass in **`https`** |
 | **ELASTICSEARCH_USERNAME** | Mandatory  | Username configured in elasticsearch |
 | **ELASTICSEARCH_PASSWORD** | Mandatory  | Password configured in elasticsearch |
 
+#### simple elasticsearch| example docker run
+
+docker run --interactive --tty                           \
+    --name fluentd.es.logs                               \
+    --network host                                       \
+    --publish 24224:24224                                \
+    --env FLUENTD_CONF=fluentd-elasticsearch-simple.conf \
+    --env ELASTICSEARCH_HOSTNAME=localhost               \
+    --env ELASTICSEARCH_PORT=9200                        \
+    --env ELASTICSEARCH_USERNAME=elastic                 \
+    --env ELASTICSEARCH_PASSWORD=secret                  \
+    devops4me/fluentd
+
 ---
+
 
 ### fluentd to S3 and elasticsearch | https
 
@@ -94,7 +108,7 @@ docker run --interactive --tty                          \
     --name manual.fluentd.logs                          \
     --network host                                      \
     --publish 24224:24224                               \
-    --env FLUENTD_CONF=fluentd-elasticsearch-local.conf \
+    --env FLUENTD_CONF=fluentd-elasticsearch-s3.conf \
     --env ELASTICSEARCH_USERNAME=<<username>            \
     --env ELASTICSEARCH_PASSWORD=<<password>>           \
     devops4me/fluentd
