@@ -107,6 +107,14 @@ This **`localhost`** reaches elasticsearch if we use **`--network=host`** to run
 
 ### fluentd logs copied to S3 and elasticsearch | https
 
+Many production systems copy logs to both S3 and an elasticsearch kibana instance. This docker run triggers a fluentd container that knows
+
+- which host and port elasticsearch is listening on
+- which s3  bucket to send logs to
+- the S3 path and object (file) name format 
+
+There are **no IAM user credentials here** because your ec2 instances should have the correct roles to write into the S3 bucket.
+
 ```bash
 docker run --interactive --tty                       \
     --name manual.fluentd.logs                       \
@@ -116,12 +124,10 @@ docker run --interactive --tty                       \
     --env ELASTICSEARCH_HOSTNAME=<<hostname>         \
     --env ELASTICSEARCH_PORT=<<port>>                \
     --env ELASTICSEARCH_SCHEME=<<scheme>             \
-    --env ELASTICSEARCH_USERNAME=<<username>         \
-    --env ELASTICSEARCH_PASSWORD=<<password>>        \
+    --env S3_BUCKET_NAME=<<username>                 \
+    --env S3_BUCKET_REGION=<<password>>              \
     devops4me/fluentd
 ```
-
-***In docker run the selects a configuration file. You then pass other mandatory/optional configuration directives as documented in the tables below.***
 
 ### fluentd-elasticsearch-s3.conf
 
@@ -148,11 +154,11 @@ docker run --interactive --tty                       \
     --network host                                   \
     --publish 24224:24224                            \
     --env FLUENTD_CONF=fluentd-elasticsearch-s3.conf \
-    --env ELASTICSEARCH_HOSTNAME=xxxxxxxxxxx         \
+    --env ELASTICSEARCH_HOSTNAME=<<es-hostname>>     \
     --env ELASTICSEARCH_PORT=443                     \
     --env ELASTICSEARCH_SCHEME=https                 \
-    --env S3_BUCKET_NAME=ecossssssssssssssssssss     \
-    --env S3_BUCKET_REGION=eu-west-xxxxxxxxxxxxxx    \
+    --env S3_BUCKET_NAME=<<s3-bucket-name>>          \
+    --env S3_BUCKET_REGION=<<aws-region>>            \
     devops4me/fluentd
 ```
 
