@@ -105,6 +105,57 @@ This **`localhost`** reaches elasticsearch if we use **`--network=host`** to run
 ---
 
 
+### s3 with AWS credentials | fluentd logs copied to S3 and elasticsearch | https
+
+This configuration uses AWS credentials so you can post it from your laptop. The other one uses roles so the ec2 instance would be configured to access the bucket without credentials.
+
+
+#### BEWARE - the **S3_BUCKET_REGION** is against the S3 bucket **and is not the same as** **`AWS_REGION`** | **`AWS_DEFAULT_REGION`** which decide where infrastructure gets created.
+
+To discover the S3_BUCKET_REGION you must go to the S3 bucket in the AWS console, click on it and at the top right you will see the region name. Use that to set the region ID in your fluentd docker run environment variable.
+
+```conf
+<source>
+    type forward
+    port 24224
+    bind 0.0.0.0
+</source>
+
+<match *.*>
+    @type stdout
+</match>
+
+<match **>
+    @type copy
+
+    <store>
+        @type elasticsearch
+        host "#{ENV['ELASTICSEARCH_HOSTNAME']}"
+        port "#{ENV['ELASTICSEARCH_PORT']}"
+        scheme "#{ENV['ELASTICSEARCH_SCHEME'] || 'http'}"
+        logstash_format true
+        logstash_prefix "#{ENV['ELASTICSEARCH_PREFIX'] || 'app.logs'}"
+        type_name "#{ENV['ELASTICSEARCH_TYPE_NAME'] || 'log.msg'}"
+    </store>
+
+    <store>
+        @type s3
+        aws_key_id "#{ENV['S3_AWS_ACCESS_KEY']}"
+        aws_sec_key "#{ENV['S3_AWS_SECRET_KEY']}"
+        s3_bucket "#{ENV['S3_BUCKET_NAME']}"
+        s3_region "#{ENV['S3_BUCKET_REGION']}"
+        utc
+	store_as "#{ENV['S3_BUCKET_FILE_TYPE'] || 'json'}"
+        path logs.%Y.%m-%B/%d-%A/
+        s3_object_key_format "%{path}%{time_slice}-#{Socket.gethostname}-%{index}.%{file_extension}"
+        time_slice_format %Y.%m.%d-%H%M
+    </store>
+
+</match>
+```
+---
+
+
 ### fluentd logs copied to S3 and elasticsearch | https
 
 Many production systems copy logs to both S3 and an elasticsearch kibana instance. This docker run triggers a fluentd container that knows
@@ -117,8 +168,7 @@ There are **no IAM user credentials here** because your ec2 instances should hav
 
 ```bash
 docker run --interactive --tty                       \
-    --name manual.fluentd.logs                       \
-    --network host                                   \
+    --name fluentd.s3.es.logs                        \
     --publish 24224:24224                            \
     --env FLUENTD_CONF=fluentd-elasticsearch-s3.conf \
     --env ELASTICSEARCH_HOSTNAME=<<hostname>         \
@@ -150,7 +200,7 @@ With this config fluentd pushes out logs to **an elasticsearch instance** and **
 
 ```bash
 docker run --interactive --tty                       \
-    --name fluentd.simple.logs                       \
+    --name fluentd.s3.es.logs                        \
     --network host                                   \
     --publish 24224:24224                            \
     --env FLUENTD_CONF=fluentd-elasticsearch-s3.conf \
@@ -173,7 +223,6 @@ You append **`--log-driver fluentd`** and **`--log-opt fluentd-address=localhost
 ```bash
 docker run                \
     --name log.smoke.test \
-    --network host        \
     --log-driver fluentd  \
     --log-opt fluentd-address=localhost:24224 \
     ubuntu \
