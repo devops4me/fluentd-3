@@ -222,11 +222,10 @@ You append **`--log-driver fluentd`** and **`--log-opt fluentd-address=localhost
 
 ```bash
 docker run                \
-    --name log.smoke.test \
+    --name fluent.smoke.test \
     --log-driver fluentd  \
-    --log-opt fluentd-address=localhost:24224 \
     ubuntu \
-    echo "supercalifragilistic log to elasticsearch via fluentd on $(date)."
+    echo "nevernever land sings of supercalifragilistic log to elasticsearch via fluentd on $(date)."
 ```
 
 Again the **`--network host`** switch (in both) allows us to access the fluentd (logstash) log collector without stating the precise ip address or hostname.
@@ -338,6 +337,14 @@ curl "http://localhost:9200/_count" -u 'elastic:secret' && echo
 
 
 ```bash
+curl -XPUT 'https://<<secure-elasticsearch-url>>:443/devops4me/clothing/1?pretty' -d '{
+"name": "itsybitsyteenyweenyyellowpolkerdotbikini",
+"organizer": "Apollo Akora"
+}' -H 'Content-Type: application/json'
+
+curl 'https://<<url>>:443/_search?q=itsybitsyteenyweenyyellowpolkerdotbikini&pretty'
+
+
 curl -XPUT 'localhost:9200/get-together/group/1?pretty' -u 'elastic:secret' -d '{
 "name": "Elasticsearch Denver",
 "organizer": "Lee"
@@ -380,6 +387,7 @@ Count the number of documents in the elasticsearch database. Choose the command 
 
 ```bash
 curl "http://<<elasticsearch-url>>/_count?pretty"
+curl -k "https://<<elasticsearch-url>>/_count?pretty"
 curl "http://<<elasticsearch-url>>/_count?pretty" -u '<<username>>:<<password>>'
 curl "http://localhost:9200/_count?pretty" -u '<<username>>:<<password>>'
 ```
@@ -436,7 +444,6 @@ Let's adapt the **[Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)** cont
 docker run --tty --privileged --detach                 \
     --network host                                     \
     --log-driver fluentd                               \
-    --log-opt fluentd-address=localhost:24224          \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume /usr/bin/docker:/usr/bin/docker           \
     --publish 8080:8080                                \
