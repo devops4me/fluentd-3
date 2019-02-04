@@ -225,7 +225,7 @@ docker run                \
     --name fluent.smoke.test \
     --log-driver fluentd  \
     ubuntu \
-    echo "nevernever land sings of supercalifragilistic log to elasticsearch via fluentd on $(date)."
+    echo "Early mornings and late nights are meat and drink for the best life $(date)."
 ```
 
 Again the **`--network host`** switch (in both) allows us to access the fluentd (logstash) log collector without stating the precise ip address or hostname.
