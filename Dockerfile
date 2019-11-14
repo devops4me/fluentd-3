@@ -17,6 +17,6 @@ RUN gem install fluent-plugin-s3
 # ---> fluentd docker run command.
 # --->
 
+COPY fluentd-elasticsearch-simple.conf /fluentd/etc/fluentd-simple.conf
 COPY fluentd-elasticsearch-s3.conf     /fluentd/etc/fluentd-elasticsearch-s3.conf
 COPY fluentd-elasticsearch-s3-with-creds.conf /fluentd/etc/fluentd-elasticsearch-s3-with-creds.conf
-COPY fluentd-elasticsearch-simple.conf /fluentd/etc/fluentd-elasticsearch-simple.conf

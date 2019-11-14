@@ -68,7 +68,7 @@ docker run --interactive --tty                           \
     --name fluentd.es.logs                               \
     --network host                                       \
     --publish 24224:24224                                \
-    --env FLUENTD_CONF=fluentd-elasticsearch-simple.conf \
+    --env FLUENTD_CONF=fluentd-simple.conf \
     --env ELASTICSEARCH_HOSTNAME=<<hostname>             \
     --env ELASTICSEARCH_PORT=<<port>>                    \
     --env ELASTICSEARCH_USERNAME=<<username>             \
@@ -78,7 +78,7 @@ docker run --interactive --tty                           \
 
 | Environment Variable       | Mandatory? | Fluentd Configuration Explained |
 |:-------------------------- |:---------- |:------------------------------- |
-| **FLUENTD_CONF** | Mandatory  | Always use **`fluentd-elasticsearch-simple.conf`** |
+| **FLUENTD_CONF** | Mandatory  | Always use **`fluentd-simple.conf`** |
 | **ELASTICSEARCH_HOSTNAME** | Mandatory  | Hostname, url or IP Address |
 | **ELASTICSEARCH_PORT** | Mandatory  | Usually 9200 or 443 (https) and 80 for (http) |
 | **ELASTICSEARCH_SCHEME** | Optional | Defaults to **`http`** but you can pass in **`https`** |
@@ -92,7 +92,7 @@ docker run --interactive --tty                           \
     --name fluentd.simple.logs                           \
     --network host                                       \
     --publish 24224:24224                                \
-    --env FLUENTD_CONF=fluentd-elasticsearch-simple.conf \
+    --env FLUENTD_CONF=fluentd-simple.conf \
     --env ELASTICSEARCH_HOSTNAME=localhost               \
     --env ELASTICSEARCH_PORT=9200                        \
     --env ELASTICSEARCH_USERNAME=elastic                 \
@@ -299,10 +299,21 @@ Our **`supercalifragilistic`** log should appear.  Open it up with the little ar
 
 ---
 
+## documentation | fluentd | elasticsearch | kibana | logstash
 
-<!---
+Aside from this wiki page, some excellent documentation exists out there to help you implement the **unified logging layer pattern** with the ELK stack.
 
-## Useful Commands
+- **[fluentd configuration file explained](https://docs.fluentd.org/configuration/config-file)**
+- **[Launching fluentd Docker and CUrl test](https://docs.fluentd.org/container-deployment/install-by-docker)**
+- **[fluentd official Dockerhub image](https://hub.docker.com/r/fluent/fluentd/)**
+- **[the docker logging driver with fluentd](https://docs.fluentd.org/container-deployment/docker-logging-driver)**
+- **[Using Docker Compose to Up the ELK Stack](https://docs.fluentd.org/container-deployment/docker-compose)**
+
+
+---
+
+
+## Appendix - Useful Commands
 
 ```bash
 curl 'localhost:9200/logstash-2019.01.21/_doc/1?pretty' -u 'elastic:secret'
@@ -328,11 +339,6 @@ yellow open   .monitoring-kibana-6-2019.01.21 TpoKwbPbRTa7mix75KqxaQ   1   1    
 yellow open   .kibana                         3aV5WqlIQoyBMWsqmYEFJg   1   1          2            0     33.7kb         33.7kb
 yellow open   .monitoring-alerts-6            0fa4o5CARvCyFdejexm4yA   1   1          1            0      6.5kb          6.5kb
 yellow open   .watcher-history-6-2019.01.21   xn8EFUksTpOj0ZkDXA7dWw   1   1        406            0    562.8kb        562.8kb
-```
-
-
-```bash
-curl "http://localhost:9200/_count" -u 'elastic:secret' && echo
 ```
 
 
@@ -365,34 +371,19 @@ curl 'localhost:9200/.watcher-history-6-2019.01.19/_search?q=*&pretty' -u 'elast
 ```
 
 
-## ElasticSearch and S3
-
-#### excellent information
-
-https://www.fluentd.org/guides/recipes/elasticsearch-and-s3
-
-https://raw.githubusercontent.com/fluent/fluentd-docker-image/master/v1.3/alpine-onbuild/fluent.conf
-
-https://www.fluentd.org/guides/recipes/docker-logging
-
--->
-
-
-## Appendices
-
-
-### A - Count Documents in ElasticSearch
+## Appendix - Count Documents in ElasticSearch
 
 Count the number of documents in the elasticsearch database. Choose the command below and substitute the url and username / password if necessary.
 
 ```bash
-curl "http://<<elasticsearch-url>>/_count?pretty"
-curl -k "https://<<elasticsearch-url>>/_count?pretty"
-curl "http://<<elasticsearch-url>>/_count?pretty" -u '<<username>>:<<password>>'
+curl "http://localhost:9200/_count" -u 'elastic:secret' | jq .
+curl "http://localhost/_count?pretty"
+curl -k "https://localhost/_count?pretty"
+curl "http://localhost/_count?pretty" -u '<<username>>:<<password>>'
 curl "http://localhost:9200/_count?pretty" -u '<<username>>:<<password>>'
 ```
 
-### B - Put Documents into ElasticSearch
+## Appendix - Put Documents into ElasticSearch
 
 Choose the command below and substitute url and username password if necessary.
 
@@ -400,7 +391,7 @@ Choose the command below and substitute url and username password if necessary.
 #### Put Without Username / Password
 
 ```bash
-curl -XPUT http://<<elasticsearch-url>>/film-index/film/1 -d \
+curl -XPUT http://localhost/film-index/film/1 -d \
 '{
 "director": "Burton, Tim",
 "genre": ["Comedy","Sci-Fi"],
@@ -410,7 +401,7 @@ curl -XPUT http://<<elasticsearch-url>>/film-index/film/1 -d \
 }' \
 -H 'Content-Type: application/json' | jq .
 
-curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -d \
+curl -XPUT http://localhost/song-index/song/1 -d \
 '{
 "director": "Michael Jackson",
 "genre": ["Comedy","Sci-Fi"],
@@ -424,7 +415,7 @@ curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -d \
 #### Put With Username / Password
 
 ```bash
-curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -u '<<username>>:<<password>>' -d \
+curl -XPUT http://localhost/song-index/song/1 -u '<<username>>:<<password>>' -d \
 '{
 "director": "Michael Jackson",
 "genre": ["Comedy","Sci-Fi"],
@@ -436,7 +427,7 @@ curl -XPUT http://<<elasticsearch-url>>/song-index/song/1 -u '<<username>>:<<pas
 ```
 
 
-### C - send [jenkins](https://github.com/devops4me/jenkins-2.0) logs to fluentd
+## Appendix - send [jenkins](https://github.com/devops4me/jenkins-2.0) logs to fluentd
 
 Let's adapt the **[Jenkins 2.0](https://github.com/devops4me/jenkins-2.0)** container to send its logs via fluentd to an elasticsearch instance in localhost.
 
@@ -451,7 +442,7 @@ docker run --tty --privileged --detach                 \
     devops4me/jenkins-2.0
 ```
 
-### D - fluentd | docker build | docker push
+## Appendix - fluentd | docker build | docker push
 
 This example employs the **`safe credentials manager`** for keeping dockerhub credentials safe.
 
@@ -466,7 +457,7 @@ docker push devops4me/fluentd:v0.1.0001
 safe docker logout
 ```
 
-### E - Remove all Docker Containers and Images
+## Appendix - Remove all Docker Containers and Images
 
 Wipe the docker slate clean by ***removing all containers and images*** with these commands.
 
@@ -477,6 +468,78 @@ docker ps -a
 docker images -a
 ```
 
-### F - Documentation for the S3 Plugin
+
+---
+
+
+## Appendix - Documentation for the S3 Plugin
 
 https://www.elastic.co/guide/en/logstash/current/plugins-outputs-s3.html
+## Appendix - ElasticSearch and S3
+
+#### excellent information
+
+https://www.fluentd.org/guides/recipes/elasticsearch-and-s3
+
+https://raw.githubusercontent.com/fluent/fluentd-docker-image/master/v1.3/alpine-onbuild/fluent.conf
+
+https://www.fluentd.org/guides/recipes/docker-logging
+
+
+
+---
+
+
+## Appendix - Quickly Install an ELK Stack for Logging
+
+The below commands switch off security for elasticsearch and then kibana automatically picks this up and does not display the login screen.
+
+
+### Run ElasticSearch
+
+```
+docker run --detach                    \
+    --name elasticsearch               \
+    --publish 9200:9200                \
+    --publish 9300:9300                \
+    --restart always                   \
+    --log-driver json-file             \
+    --env discovery.type=single-node   \
+    --env transport.host=127.0.0.1     \
+    --env xpack.security.enabled=false \
+    docker.elastic.co/elasticsearch/elasticsearch-platinum:6.0.0 && sleep 20
+```
+
+
+### Run Kibana
+
+
+```
+docker run --detach        \
+    --name vm.kibana       \
+    --publish 5601:5601    \
+    --restart always       \
+    --link elasticsearch   \
+    --log-driver json-file \
+    --env "ELASTICSEARCH_URL=http://elasticsearch:9200" \
+    docker.elastic.co/kibana/kibana:6.0.0 && sleep 20
+```
+
+### Run Fluentd
+
+**@todo** - remove the ELASTICSEARCH_USERNAME and ELASTICSEARCH_PASSWORD from the fluent configuration file in the devops4me/fluentd image and then remove the environment variables in the docker run for fluentd.
+
+
+```
+docker run --interactive --tty             \
+    --name vm.fluentd                      \
+    --network host                         \
+    --restart always                       \
+    --log-driver json-file                 \
+    --env FLUENTD_CONF=fluentd-simple.conf \
+    --env ELASTICSEARCH_HOSTNAME=localhost \
+    --env ELASTICSEARCH_PORT=9200          \
+    --env ELASTICSEARCH_USERNAME=elastic   \
+    --env ELASTICSEARCH_PASSWORD=secret    \
+    devops4me/fluentd
+```
