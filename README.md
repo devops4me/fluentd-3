@@ -71,8 +71,6 @@ docker run --interactive --tty                           \
     --env FLUENTD_CONF=fluentd-simple.conf \
     --env ELASTICSEARCH_HOSTNAME=<<hostname>             \
     --env ELASTICSEARCH_PORT=<<port>>                    \
-    --env ELASTICSEARCH_USERNAME=<<username>             \
-    --env ELASTICSEARCH_PASSWORD=<<password>>            \
     devops4me/fluentd
 ```
 
@@ -82,8 +80,6 @@ docker run --interactive --tty                           \
 | **ELASTICSEARCH_HOSTNAME** | Mandatory  | Hostname, url or IP Address |
 | **ELASTICSEARCH_PORT** | Mandatory  | Usually 9200 or 443 (https) and 80 for (http) |
 | **ELASTICSEARCH_SCHEME** | Optional | Defaults to **`http`** but you can pass in **`https`** |
-| **ELASTICSEARCH_USERNAME** | Mandatory  | Username configured in elasticsearch |
-| **ELASTICSEARCH_PASSWORD** | Mandatory  | Password configured in elasticsearch |
 
 #### simple elasticsearch| example docker run
 
@@ -95,8 +91,6 @@ docker run --interactive --tty                           \
     --env FLUENTD_CONF=fluentd-simple.conf \
     --env ELASTICSEARCH_HOSTNAME=localhost               \
     --env ELASTICSEARCH_PORT=9200                        \
-    --env ELASTICSEARCH_USERNAME=elastic                 \
-    --env ELASTICSEARCH_PASSWORD=secret                  \
     devops4me/fluentd
 ```
 
